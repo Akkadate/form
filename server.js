@@ -25,6 +25,17 @@ const pool = new Pool({
   port: process.env.DB_PORT || 5432,
 });
 
+// ตรวจสอบการเชื่อมต่อฐานข้อมูล
+pool.query('SELECT NOW()', (err, res) => {
+  if (err) {
+    console.error('Error connecting to the database:', err);
+  } else {
+    console.log('Database connection successful:', res.rows[0]);
+  }
+});
+
+
+
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
