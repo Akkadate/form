@@ -1,4 +1,5 @@
 // server.js - ไฟล์หลักสำหรับ Backend
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -9,18 +10,19 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 
+
 // กำหนดค่าเริ่มต้น
 const app = express();
-const PORT = 4700;
-const JWT_SECRET = 'your-secret-key'; // ควรเก็บไว้ใน .env file ในโปรเจคจริง
+const PORT = process.env.PORT || 4700; // ใช้ค่าจาก .env หรือค่าเริ่มต้น
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 // กำหนดค่าการเชื่อมต่อกับฐานข้อมูล
 const pool = new Pool({
-  host: 'remote.devapp.cc',
-  user: 'postgres',
-  password: 'Tct85329$',
-  database: 'student_document_system',
-  port: 5432,
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  port: process.env.DB_PORT || 5432,
 });
 
 const authenticateToken = (req, res, next) => {
@@ -66,8 +68,8 @@ const upload = multer({
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'your-email@gmail.com', // ควรเก็บไว้ใน .env file
-    pass: 'your-email-password' // ควรเก็บไว้ใน .env file
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD
   }
 });
 
