@@ -23,6 +23,23 @@ const pool = new Pool({
   port: 5432,
 });
 
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  
+  if (!token) {
+    return res.status(401).json({ message: 'กรุณาเข้าสู่ระบบ' });
+  }
+  
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) {
+      return res.status(403).json({ message: 'ไม่มีสิทธิ์เข้าถึง' });
+    }
+    req.user = user;
+    next();
+  });
+};
+
 // ส่งคำขอเอกสาร
 app.post('/api/documents/request', authenticateToken, upload.single('idCard'), async (req, res) => {
   try {
@@ -273,23 +290,7 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-// Middleware ตรวจสอบ token
-const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-  
-  if (!token) {
-    return res.status(401).json({ message: 'กรุณาเข้าสู่ระบบ' });
-  }
-  
-  jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) {
-      return res.status(403).json({ message: 'ไม่มีสิทธิ์เข้าถึง' });
-    }
-    req.user = user;
-    next();
-  });
-};
+
 
 // เส้นทาง API
 
