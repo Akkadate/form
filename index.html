@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบขอเอกสารทางการศึกษาออนไลน์</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .navbar {
+            background-color: #0d6efd;
+        }
+        .card {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        .document-card:hover {
+            transform: translateY(-5px);
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        .footer {
+            background-color: #343a40;
+            color: white;
+            padding: 20px 0;
+            margin-top: 50px;
+        }
+        .status-badge {
+            font-size: 14px;
+            padding: 5px 10px;
+        }
+        .login-page {
+            min-height: 60vh;
+            display: flex;
+            align-items: center;
+        }
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 5px;
+            height: calc(100% - 10px);
+            width: 2px;
+            background-color: #dee2e6;
+        }
+        .progress-step {
+            position: relative;
+            margin-bottom: 15px;
+        }
+        .progress-step::before {
+            content: '';
+            position: absolute;
+            left: -30px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #adb5bd;
+        }
+        .progress-step.active::before {
+            background-color: #0d6efd;
+        }
+        .progress-step.completed::before {
+            background-color: #28a745;
+        }
+        .banner-img {
+            max-height: 200px;
+            object-fit: cover;
+        }
+        .step-wizard {
+            margin: 30px 0;
+        }
+        .step-wizard-list {
+            background: #fff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            color: #333;
+            list-style-type: none;
+            border-radius: 10px;
+            display: flex;
+            padding: 20px 10px;
+            position: relative;
+            z-index: 10;
+        }
+        .step-wizard-item {
+            padding: 0 20px;
+            flex-basis: 0;
+            flex-grow: 1;
+            max-width: 100%;
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            position: relative;
+        }
+        .step-wizard-item::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 30px;
+            background: #d5d5d5;
+            height: 3px;
+            width: 100%;
+            transform: translateX(-50%);
+            z-index: -10;
+        }
+        .step-wizard-item:first-child::before {
+            display: none;
+        }
+        .step-wizard-item:last-child::after {
+            display: none;
+        }
+        .progress-count {
+            height: 40px;
+            width: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-weight: 600;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+            color: #fff;
+        }
+        .progress-count::after {
+            content: "";
+            height: 40px;
+            width: 40px;
+            background-color: #d5d5d5;
+            border-radius: 50%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -10;
+        }
+        .progress-count::before {
+            content: "";
+            height: 10px;
+            width: 20px;
+            border-left: 3px solid #fff;
+            border-bottom: 3px solid #fff;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -60%) rotate(-45deg);
+            transform-origin: center center;
+            z-index: 1;
+            opacity: 0;
+        }
+        .progress-label {
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .current-item .progress-count::after {
+            background-color: #0d6efd;
+        }
+        .completed-item .progress-count::after {
+            background-color: #28a745;
+        }
+        .completed-item .progress-count::before {
+            opacity: 1;
+        }
+        .user-profile {
+            display: flex;
+            align-items: center;
+            color: white;
+            margin-right: 15px;
+        }
+        .user-profile img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .notification-icon {
+            color: white;
+            font-size: 1.2rem;
+            position: relative;
+            margin-right: 15px;
+        }
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            font-size: 10px;
+            background: red;
+            color: white;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .document-status {
+            font-size: 0.75rem;
+            color: #6c757d;
+        }
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .search-box .form-control {
+            border-radius: 30px;
+            padding-left: 40px;
+        }
+        .search-box .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 10px;
+            color: #6c757d;
+        }
+        #announcementCarousel {
+            margin-bottom: 30px;
+        }
+        .carousel-item {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .loading-spinner {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Spinner -->
+    <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner-border text-light" role="status">
+            <span class="visually-hidden">กำลังโหลด...</span>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-file-alt me-2"></i>ระบบขอเอกสารการศึกษา
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" id="homeLink">
+                            <i class="fas fa-home me-1"></i>หน้าหลัก
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="requestLink">
+                            <i class="fas fa-file-signature me-1"></i>ขอเอกสาร
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="statusLink">
+                            <i class="fas fa-tasks me-1"></i>ติดตามสถานะ
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="faqLink">
+                            <i class="fas fa-question-circle me-1"></i>คำถามที่พบบ่อย
+                        </a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center" id="userSection">
+                    <!-- จะถูกแทนที่ด้วย JavaScript หลังจากล็อกอิน -->
+                    <button class="btn btn-light" id="loginBtn">
+                        <i class="fas fa-sign-in-alt me-1"></i>เข้าสู่ระบบ
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <div class="container mt-4">
+        <!-- Login Form -->
+        <div id="loginPage" class="row justify-content-center login-page" style="display: none;">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-sign-in-alt me-2"></i>เข้าสู่ระบบ
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="loginForm">
+                            <div class="mb-3">
+                                <label for="studentId" class="form-label">รหัสนักศึกษา</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-id-card"></i>
+                                    </span>
+                                    <input type="text" class="form-control" id="studentId" placeholder="กรอกรหัสนักศึกษา" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">รหัสผ่าน</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-lock"></i>
+                                    </span>
+                                    <input type="password" class="form-control" id="password" placeholder="กรอกรหัสผ่าน" required>
+                                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="rememberMe">
+                                <label class="form-check-label" for="rememberMe">จดจำรหัสผ่าน</label>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-sign-in-alt me-2"></i>เข้าสู่ระบบ
+                                </button>
+                            </div>
+                        </form>
+                        <hr>
+                        <div class="text-center">
+                            <a href="#" id="registerLink">ลงทะเบียนใช้งานระบบ</a> | 
+                            <a href="#" id="forgotPasswordLink">ลืมรหัสผ่าน</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Register Form -->
+        <div id="registerPage" class="row justify-content-center" style="display: none;">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-user-plus me-2"></i>ลงทะเบียนใช้งานระบบ
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="registerForm">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="regStudentId" class="form-label">รหัสนักศึกษา</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-id-card"></i>
+                                        </span>
+                                        <input type="text" class="form-control" id="regStudentId" placeholder="กรอกรหัสนักศึกษา" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="regPassword" class="form-label">รหัสผ่าน</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-lock"></i>
+                                        </span>
+                                        <input type="password" class="form-control" id="regPassword" placeholder="กรอกรหัสผ่าน" required>
+                                    </div>
+                                    <div class="form-text">รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร ประกอบด้วยตัวเลขและตัวอักษร</div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="firstName" class="form-label">ชื่อ</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-user"></i>
+                                        </span>
+                                        <input type="text" class="form-control" id="firstName" placeholder="กรอกชื่อ" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="lastName" class="form-label">นามสกุล</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-user"></i>
+                                        </span>
+                                        <input type="text" class="form-control" id="lastName" placeholder="กรอกนามสกุล" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="email" class="form-label">อีเมล</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-envelope"></i>
+                                        </span>
+                                        <input type="email" class="form-control" id="email" placeholder="กรอกอีเมล" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="phone" class="form-label">เบอร์โทรศัพท์</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-phone"></i>
+                                        </span>
+                                        <input type="tel" class="form-control" id="phone" placeholder="กรอกเบอร์โทรศัพท์" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="faculty" class="form-label">คณะ</label>
+                                <select class="form-select" id="faculty" required>
+                                    <option value="" selected disabled>เลือกคณะ</option>
+                                    <option value="arts">คณะศิลปศาสตร์</option>
+                                    <option value="science">คณะวิทยาศาสตร์</option>
+                                    <option value="engineering">คณะวิศวกรรมศาสตร์</option>
+                                    <option value="business">คณะบริหารธุรกิจ</option>
+                                    <option value="education">คณะศึกษาศาสตร์</option>
+                                    <option value="medicine">คณะแพทยศาสตร์</option>
+                                    <option value="law">คณะนิติศาสตร์</option>
+                                    <option value="agriculture">คณะเกษตรศาสตร์</option>
+                                </select>
+                            </div>
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="agreeTerms" required>
+                                <label class="form-check-label" for="agreeTerms">
+                                    ข้าพเจ้ายอมรับ <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">ข้อตกลงและเงื่อนไข</a>
+                                </label>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-user-plus me-2"></i>ลงทะเบียน
+                                </button>
+                            </div>
+                        </form>
+                        <hr>
+                        <div class="text-center">
+                            <a href="#" id="backToLoginLink">
+                                <i class="fas fa-arrow-left me-1"></i>กลับไปหน้าเข้าสู่ระบบ
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Home Page -->
+        <div id="homePage">
+            <!-- Banner/Carousel -->
+            <div id="announcementCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <div class="d-flex align-items-center">
+                            <div class="text-center w-100">
+                                <h4><i class="fas fa-bullhorn me-2"></i>ประกาศ</h4>
+                                <p>ระบบขอเอกสารออนไลน์เปิดให้บริการแล้ว สามารถยื่นคำร้องได้ตลอด 24 ชั่วโมง</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <div class="d-flex align-items-center">
+                            <div class="text-center w-100">
+                                <h4><i class="fas fa-calendar-alt me-2"></i>แจ้งปิดทำการ</h4>
+                                <p>วันที่ 13-15 เมษายน 2568 ปิดทำการเนื่องในวันสงกรานต์ กลับมาให้บริการปกติในวันที่ 16 เมษายน 2568</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#announcementCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#announcementCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+
+            <!-- Welcome Card -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h3 class="card-title">ยินดีต้อนรับสู่ระบบขอเอกสารทางการศึกษาออนไลน์</h3>
+                                    <p class="card-text">ระบบขอเอกสารออนไลน์ช่วยให้นักศึกษาสามารถยื่นคำร้องขอเอกสารทางการศึกษาได้อย่างสะดวกรวดเร็ว ไม่ต้องเดินทางมาที่มหาวิทยาลัย</p>
+                                    <div class="mt-3">
+                                        <button class="btn btn-primary me-2" id="startRequestBtn">
+                                            <i class="fas fa-file-signature me-2"></i>เริ่มขอเอกสาร
+                                        </button>
+                                        <button class="btn btn-outline-primary" id="viewGuideBtn">
+                                            <i class="fas fa-info-circle me-2"></i>คู่มือการใช้งาน
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-center">
+                                    <img src="/api/placeholder/300/200" alt="ภาพประกอบ" class="img-fluid rounded">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Status Check -->
+            <div class="row mb-4" id="quickStatusSection" style="display: none;">
+                <div class="col-md-12">
+                    <div class="card border-primary">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">สถานะคำขอล่าสุดของคุณ</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row" id="latestRequestContainer">
+                                <!-- จะถูกเติมข้อมูลด้วย JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Document Types -->
+            <h4 class="mb-3">เอกสารที่สามารถขอได้</h4>
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card text-center document-card h-100" data-document="studentCertificate">
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <i class="fas fa-user-graduate fa-3x text-primary"></i>
+                            </div>
+                            <h5 class="card-title">ใบรับรองการเป็นนักศึกษา</h5>
+                            <p class="card-text">เอกสารยืนยันสถานะการเป็นนักศึกษาปัจจุบัน</p>
+                            <p class="text-muted">ค่าธรรมเนียม: 50 บาท</p>
+                            <span class="badge bg-success">ได้รับภายใน 1 วันทำการ</span>
+                        </div>
+                        <div class="card-footer bg-white border-0">
+                            <button class="btn btn-outline-primary request-document-btn" data-document="studentCertificate">
+                                <i class="fas fa-file-signature me-2"></i>ขอเอกสาร
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card text-center document-card h-100" data-document="transcript">
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <i class="fas fa-file-alt fa-3x text-primary"></i>
+                            </div>
+                            <h5 class="card-title">ใบแสดงผลการเรียน (Transcript)</h5>
+                            <p class="card-text">เอกสารแสดงผลการศึกษาตลอดหลักสูตร</p>
+                            <p class="text-muted">ค่าธรรมเนียม: 100 บาท</p>
+                            <span class="badge bg-warning text-dark">ได้รับภายใน 3 วันทำการ</span>
+                        </div>
+                        <div class="card-footer bg-white border-0">
+                            <button class="btn btn-outline-primary request-document-btn" data-document="transcript">
+                                <i class="fas fa-file-signature me-2"></i>ขอเอกสาร
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card text-center document-card h-100" data-document="graduationCertificate">
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <i class="fas fa-graduation-cap fa-3x text-primary"></i>
+                            </div>
+                            <h5 class="card-title">หนังสือรับรองการสำเร็จการศึกษา</h5>
+                            <p class="card-text">เอกสารรับรองว่าสำเร็จการศึกษาตามหลักสูตร</p>
+                            <p class="text-muted">ค่าธรรมเนียม: 100 บาท</p>
+                            <span class="badge bg-danger">ได้รับภายใน 5 วันทำการ</span>
+                        </div>
+                        <div class="card-footer bg-white border-0">
+                            <button class="btn btn-outline-primary request-document-btn" data-document="graduationCertificate">
+                                <i class="fas fa-file-signature me-2"></i>ขอเอกสาร
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Process Steps -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <h4 class="mb-3">ขั้นตอนการขอเอกสาร</h4>
+                    <div class="step-wizard">
+                        <ul class="step-wizard-list">
+                            <li class="step-wizard-item completed-item">
+                                <span class="progress-count">1</span>
+                                <span class="progress-label">ลงทะเบียน<br>เข้าสู่ระบบ</span>
+                            </li>
+                            <li class="step-wizard-item completed-item">
+                                <span class="progress-count">2</span>
+                                <span class="progress-label">กรอกข้อมูล<br>ขอเอกสาร</span>
+                            </li>
+                            <li class="step-wizard-item current-item">
+                                <span class="progress-count">3</span>
+                                <span class="progress-label">ชำระ<br>ค่าธรรมเนียม</span>
+                            </li>
+                            <li class="step-wizard-item">
+                                <span class="progress-count">4</span>
+                                <span class="progress-label">ติดตาม<br>สถานะ</span>
+                            </li>
+                            <li class="step-wizard-item">
+                                <span class="progress-count">5</span>
+                                <span class="progress-label">รับเอกสาร</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Document
