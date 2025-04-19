@@ -314,11 +314,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.get('/', (req, res) => {
   res.json({ message: 'ยินดีต้อนรับสู่ API ระบบขอเอกสารทางการศึกษาออนไลน์' });
 });
-
-// ลงทะเบียนผู้ใช้ใหม่
 app.post('/api/register', async (req, res) => {
   try {
     const { studentId, password, firstName, lastName, email, phone, faculty } = req.body;
+    
+    console.log('Registration attempt:', { studentId, firstName, lastName, email }); // เพิ่มการล็อก
     
     // ตรวจสอบว่ามีรหัสนักศึกษานี้ในระบบแล้วหรือไม่
     const checkUser = await pool.query('SELECT * FROM students WHERE student_id = $1', [studentId]);
@@ -335,6 +335,8 @@ app.post('/api/register', async (req, res) => {
       [studentId, hashedPassword, firstName, lastName, email, phone, faculty]
     );
     
+    console.log('Registration successful:', result.rows[0]); // เพิ่มการล็อก
+    
     // ส่งอีเมลยืนยันการลงทะเบียน
     const mailOptions = {
       from: 'your-email@gmail.com',
@@ -348,9 +350,9 @@ app.post('/api/register', async (req, res) => {
       `
     };
     
-    transporter.sendMail(mailOptions);
+   // transporter.sendMail(mailOptions);
     
-    res.status(201).json({
+       res.status(201).json({
       message: 'ลงทะเบียนสำเร็จ',
       user: {
         studentId: result.rows[0].student_id,
@@ -361,7 +363,7 @@ app.post('/api/register', async (req, res) => {
     });
   } catch (error) {
     console.error('เกิดข้อผิดพลาดในการลงทะเบียน:', error);
-    res.status(500).json({ message: 'เกิดข้อผิดพลาดในการลงทะเบียน' });
+    res.status(500).json({ message: 'เกิดข้อผิดพลาดในการลงทะเบียน', error: error.message });
   }
 });
 
