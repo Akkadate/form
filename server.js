@@ -314,8 +314,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.get('/', (req, res) => {
   res.json({ message: 'ยินดีต้อนรับสู่ API ระบบขอเอกสารทางการศึกษาออนไลน์' });
 });
+
 app.post('/api/register', async (req, res) => {
   try {
+    console.log('Registration request body:', req.body); // เพิ่มการล็อก
+    
     const { studentId, password, firstName, lastName, email, phone, faculty } = req.body;
     
     console.log('Registration attempt:', { studentId, firstName, lastName, email }); // เพิ่มการล็อก
