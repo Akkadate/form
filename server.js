@@ -40,6 +40,38 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
+// กำหนดพื้นที่จัดเก็บไฟล์
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ 
+  storage: storage,
+  limits: { fileSize: 2 * 1024 * 1024 }, // จำกัดขนาดไฟล์ไม่เกิน 2MB
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png' || file.mimetype === 'application/pdf') {
+      cb(null, true);
+    } else {
+      cb(new Error('รองรับเฉพาะไฟล์ .jpg, .png และ .pdf เท่านั้น'), false);
+    }
+  }
+});
+
+// กำหนดค่าสำหรับส่งอีเมล
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'your-email@gmail.com', // ควรเก็บไว้ใน .env file
+    pass: 'your-email-password' // ควรเก็บไว้ใน .env file
+  }
+});
+
+
 // ส่งคำขอเอกสาร
 app.post('/api/documents/request', authenticateToken, upload.single('idCard'), async (req, res) => {
   try {
@@ -260,35 +292,6 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// กำหนดพื้นที่จัดเก็บไฟล์
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  }
-});
-const upload = multer({ 
-  storage: storage,
-  limits: { fileSize: 2 * 1024 * 1024 }, // จำกัดขนาดไฟล์ไม่เกิน 2MB
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png' || file.mimetype === 'application/pdf') {
-      cb(null, true);
-    } else {
-      cb(new Error('รองรับเฉพาะไฟล์ .jpg, .png และ .pdf เท่านั้น'), false);
-    }
-  }
-});
-
-// กำหนดค่าสำหรับส่งอีเมล
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: 'your-email@gmail.com', // ควรเก็บไว้ใน .env file
-    pass: 'your-email-password' // ควรเก็บไว้ใน .env file
-  }
-});
 
 
 
