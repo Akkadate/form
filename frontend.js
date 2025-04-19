@@ -364,32 +364,47 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     });
 
-    // ฟอร์มลงทะเบียน
-    registerForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        
-        const userData = {
-            studentId: document.getElementById('regStudentId').value,
-            password: document.getElementById('regPassword').value,
-            firstName: document.getElementById('firstName').value,
-            lastName: document.getElementById('lastName').value,
-            email: document.getElementById('email').value,
-            phone: document.getElementById('phone').value,
-            faculty: document.getElementById('faculty').value
-        };
-        
-        // แสดงการโหลด (ในโปรเจคจริงควรมีการแสดง loading)
-        
-        simulateRegister(userData)
-            .then(user => {
-                showLogin();
-                showAlert('ลงทะเบียนสำเร็จ กรุณาเข้าสู่ระบบ', 'success');
-                registerForm.reset();
-            })
-            .catch(error => {
-                showAlert(error, 'danger');
-            });
-    });
+   // ในไฟล์ frontend.js
+// ตรวจสอบข้อมูลก่อนส่งไปยัง API
+registerForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  
+  const userData = {
+    studentId: document.getElementById('regStudentId').value,
+    password: document.getElementById('regPassword').value,
+    firstName: document.getElementById('firstName').value,
+    lastName: document.getElementById('lastName').value,
+    email: document.getElementById('email').value,
+    phone: document.getElementById('phone').value,
+    faculty: document.getElementById('faculty').value
+  };
+  
+  console.log('Sending registration data:', userData); // เพิ่มการล็อกในฝั่ง Frontend
+  
+  // ส่งข้อมูลไปยัง API
+  fetch('/api/register', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(userData)
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log('Registration response:', data);
+    if (data.message === 'ลงทะเบียนสำเร็จ') {
+      showAlert('ลงทะเบียนสำเร็จ กรุณาเข้าสู่ระบบ', 'success');
+      showLogin();
+      registerForm.reset();
+    } else {
+      showAlert(data.message || 'เกิดข้อผิดพลาดในการลงทะเบียน', 'danger');
+    }
+  })
+  .catch(error => {
+    console.error('Registration error:', error);
+    showAlert('เกิดข้อผิดพลาดในการลงทะเบียน', 'danger');
+  });
+});
 
     // ฟอร์มขอเอกสาร
     documentRequestForm.addEventListener('submit', (e) => {
